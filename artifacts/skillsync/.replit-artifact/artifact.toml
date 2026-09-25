@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SkillSync"
+description = "A private career workspace where each person manages their own profile, skills, projects, job applications, interview preparation, and learning roadmaps."
+version = "1.0.0"
+id = "artifacts/skillsync"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26038
+
+[services.development]
+run = "pnpm --filter @workspace/skillsync run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/skillsync", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/skillsync/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26038"
+BASE_PATH = "/"
