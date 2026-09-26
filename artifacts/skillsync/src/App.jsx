@@ -223,10 +223,197 @@ function RecordRow({ record, config, onEdit, onDelete }) {
 }
 
 function RecordModal({ config, initial, saving, onClose, onSave }) {
-  const [form, setForm] = useState(() => config.fields.reduce((result, [key, , kind, mode, options]) => { const current = initial?.[key]; result[key] = kind === 'checkbox' ? Boolean(current) : mode === 'comma' ? (Array.isArray(current) ? current.join(', ') : current || '') : kind === 'milestones' ? (Array.isArray(current) ? current : []) : current ?? (kind === 'select' ? options?.[0] : ''); return result; }, {}));
-  const set = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const submit = (event) => { event.preventDefault(); const data = { ...form }; config.fields.forEach(([key, , kind, mode]) => { if (mode === 'comma') data[key] = String(data[key] || '').split(',').map((value) => value.trim()).filter(Boolean); if (kind === 'checkbox') data[key] = Boolean(data[key]); }); onSave(data); };
-  return <div className="modal-backdrop"><form className="modal" onSubmit={submit}><div className="modal-head"><h2>{initial ? 'Edit record' : `Add ${config.title === 'Interview prep' ? 'a topic' : config.title.endsWith('s') ? config.title.slice(0, -1).toLowerCase() : config.title.toLowerCase()}`}</h2><button type="button" className="close" onClick={onClose} data-testid="button-close-modal"><X size={17} /></button></div><div className="modal-body"><div className="form-grid">{config.fields.map(([key, label, kind, mode, options]) => <div className={`field ${kind === 'textarea' || kind === 'milestones' ? 'full' : ''}`} key={key}>{kind === 'checkbox' ? <label style={{ display:'flex', flexDirection:'row', gap:9, alignItems:'center', textTransform:'none', fontFamily:'var(--font-sans)', fontSize:13 }}><input type="checkbox" checked={form[key]} onChange={(event) => set(key, event.target.checked)} data-testid={`input-${key}`} /> {label}</label> : <><label htmlFor={`field-${key}`}>{label}</label>{kind === 'textarea' ? <textarea id={`field-${key}`} className="textarea" value={form[key]} onChange={(event) => set(key, event.target.value)} data-testid={`input-${key}`} /> : kind === 'select' ? <select id={`field-${key}`} className="select" value={form[key]} onChange={(event) => set(key, event.target.value)} data-testid={`input-${key}`}>{options.map((option) => <option value={option} key={option}>{option.replaceAll('-', ' ')}</option>)}</select> : kind === 'milestones' ? <MilestoneEditor value={form[key]} onChange={(value) => set(key, value)} /> : <input id={`field-${key}`} className="input" type={kind} value={form[key]} onChange={(event) => set(key, event.target.value)} placeholder={mode === 'comma' ? 'Example: writing, research, facilitation' : ''} data-testid={`input-${key}`} />}</>}</div>)}</div><div className="modal-footer"><button type="button" className="button button-quiet" onClick={onClose}>Cancel</button><button type="submit" className="button button-primary" disabled={saving} data-testid="button-save-record">{saving ? 'Saving…' : 'Save record'}</button></div></div></form></div>;
+  const [form, setForm] = useState(() =>
+    config.fields.reduce((result, [key, , kind, mode]) => {
+      const current = initial?.[key];
+
+      result[key] =
+        kind === 'checkbox'
+          ? Boolean(current)
+          : mode === 'comma'
+            ? (Array.isArray(current) ? current.join(', ') : current || '')
+            : kind === 'milestones'
+              ? (Array.isArray(current) ? current : [])
+              : current ?? (kind === 'select' ? '' : '');
+
+      return result;
+    }, {})
+  );
+
+  const set = (key, value) => {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
+
+  const submit = (event) => {
+    event.preventDefault();
+
+    const data = { ...form };
+
+    config.fields.forEach(([key, , kind, mode]) => {
+      if (mode === 'comma') {
+        data[key] = String(data[key] || '')
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean);
+      }
+
+      if (kind === 'checkbox') {
+        data[key] = Boolean(data[key]);
+      }
+    });
+
+    onSave(data);
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <form className="modal" onSubmit={submit}>
+        <div className="modal-head">
+          <h2>
+            {initial
+              ? 'Edit record'
+              : `Add ${
+                  config.title === 'Interview prep'
+                    ? 'a topic'
+                    : config.title.endsWith('s')
+                      ? config.title.slice(0, -1).toLowerCase()
+                      : config.title.toLowerCase()
+                }`}
+          </h2>
+
+          <button
+            type="button"
+            className="close"
+            onClick={onClose}
+            data-testid="button-close-modal"
+          >
+            <X size={17} />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <div className="form-grid">
+            {config.fields.map(([key, label, kind, mode]) => {
+              const fieldOptions =
+                kind === 'select' && Array.isArray(mode) ? mode : [];
+
+              return (
+                <div
+                  className={`field ${
+                    kind === 'textarea' || kind === 'milestones'
+                      ? 'full'
+                      : ''
+                  }`}
+                  key={key}
+                >
+                  {kind === 'checkbox' ? (
+                    <label
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 9,
+                        alignItems: 'center',
+                        textTransform: 'none',
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: 13,
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(form[key])}
+                        onChange={(event) =>
+                          set(key, event.target.checked)
+                        }
+                        data-testid={`input-${key}`}
+                      />
+                      {label}
+                    </label>
+                  ) : (
+                    <>
+                      <label htmlFor={`field-${key}`}>
+                        {label}
+                      </label>
+
+                      {kind === 'textarea' ? (
+                        <textarea
+                          id={`field-${key}`}
+                          className="textarea"
+                          value={form[key] || ''}
+                          onChange={(event) =>
+                            set(key, event.target.value)
+                          }
+                          data-testid={`input-${key}`}
+                        />
+                      ) : kind === 'select' ? (
+                        <select
+                          id={`field-${key}`}
+                          className="select"
+                          value={form[key] || ''}
+                          onChange={(event) =>
+                            set(key, event.target.value)
+                          }
+                          data-testid={`input-${key}`}
+                        >
+                          {fieldOptions.map((option) => (
+                            <option value={option} key={option}>
+                              {option.replaceAll('-', ' ')}
+                            </option>
+                          ))}
+                        </select>
+                      ) : kind === 'milestones' ? (
+                        <MilestoneEditor
+                          value={form[key]}
+                          onChange={(value) => set(key, value)}
+                        />
+                      ) : (
+                        <input
+                          id={`field-${key}`}
+                          className="input"
+                          type={kind}
+                          value={form[key] || ''}
+                          onChange={(event) =>
+                            set(key, event.target.value)
+                          }
+                          placeholder={
+                            mode === 'comma'
+                              ? 'Example: writing, research, facilitation'
+                              : ''
+                          }
+                          data-testid={`input-${key}`}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="button button-quiet"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="button button-primary"
+              disabled={saving}
+              data-testid="button-save-record"
+            >
+              {saving ? 'Saving…' : 'Save record'}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
 }
 
 function MilestoneEditor({ value, onChange }) {
