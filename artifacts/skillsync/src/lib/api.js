@@ -1,4 +1,6 @@
-const apiOrigin = import.meta.env.VITE_API_BASE_URL || '';
+const apiOrigin = import.meta.env.PROD
+  ? ''
+  : (import.meta.env.VITE_API_BASE_URL || '');
 
 const request = async (path, options = {}) => {
   const response = await fetch(`${apiOrigin}${path}`, {
