@@ -75,7 +75,10 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.use((error, _req, res, _next) => {
-  return res.status(500).json({ error: "The server could not complete that request." });
-});
+  console.error("SERVER ERROR:", error);
 
+  return res.status(500).json({
+    error: error?.message || "The server could not complete that request.",
+  });
+});
 export default app;
