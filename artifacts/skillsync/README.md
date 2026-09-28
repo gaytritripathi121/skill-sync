@@ -40,20 +40,20 @@ Requirements: Node.js 20.19 or newer, npm, a MongoDB database, and a Clerk appli
 1. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Copy `.env.example` to `.env`. Fill in the MongoDB URI and your Clerk development keys. Keep `.env` private and out of version control.
 3. Start the API:
 
    ```bash
-   npm run dev:server
+   pnpm run dev:server
    ```
 
 4. In a second terminal, start the web app:
 
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
    Open the Vite address shown in the terminal. The example API URL points to `http://localhost:5000`; the Express API allows the local Vite origin.
@@ -61,8 +61,8 @@ Requirements: Node.js 20.19 or newer, npm, a MongoDB database, and a Clerk appli
 For a production-style run, build the browser app and start the Express server:
 
 ```bash
-npm run build
-npm start
+pnpm run build
+pnpm start
 ```
 
 ## Environment variables
