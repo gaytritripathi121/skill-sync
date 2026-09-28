@@ -22,11 +22,9 @@ async function start() {
 
   try {
     await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 15000 });
-  } catch (error) {
-    logger.error(
-      { name: error?.name, code: error?.code },
-      "Could not connect to MongoDB. Check MONGODB_URI and Atlas network access.",
-    );
+   } catch (error) {
+    console.error("MongoDB connection error:");
+    console.error(error);
     process.exit(1);
   }
 
