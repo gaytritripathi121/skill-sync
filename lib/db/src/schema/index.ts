@@ -1,4 +1,3 @@
-// Export your models here. Add one export per file
 // export * from "./posts";
 //
 // Each model/table should ideally be split into different files.
